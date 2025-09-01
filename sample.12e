@@ -1,0 +1,55 @@
+<
+This is a start level code for simple led circuit.
+>
+
+..led..
+name "bulb"
+terminal male pos ter1
+terminal male neg ter2
+;..led..;
+
+..battery..
+name "powerA"
+terminal ntr pos bat1
+terminal ntr neg bat2
+;..battery..;
+
+..resistor..
+name "r"
+terminal ntr zero res1
+terminal ntr zero res2
+;..resistor..;
+
+..connectSingle..
+name "con1"
+ter1 with res1
+;..connectSingle..;
+
+..connectSingle..
+name "con2"
+res2 with bat1
+;..connectSingle..;
+
+..connectSingle..
+name "con3"
+bat2 with ter2
+;..connectSingle..;
+
+..digPhotoSensr..
+name "bulbSensor"
+pairTo "bulb"
+terminal male out "sensorOut"
+;..digPhotoSensr..;
+
+..printr..
+name "print1"
+attach dig "sensorOut"
+print "LED is ON","LED is OFF"
+;..printr..;
+
+..switch..
+name "sw1"
+terminal male out "switchIn"
+terminal male out "switchOut"
+state "ON"
+;..switch..;
