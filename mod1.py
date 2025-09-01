@@ -1,13 +1,32 @@
 class Terminal:
     def __init__(self, label, type_, nature):
-        self.label = label
+        self.label = label 
         self.type = type_      # 'male' or 'female'
         self.nature = nature   # 'pos', 'neg', or 'zero'
-        # self.connected_to=[]
+        self.connected_to=[]
+        self.dataAnt = "None" # set 'in' for to act as receiver and 'out' for act as  transmitter
+        self.passed = ""
+
+    def connect(self, other_terminal):
+        if other_terminal not in self.connected_to:
+            self.connected_to.append(other_terminal)
+        if self not in other_terminal.connected_to:
+            other_terminal.connected_to.append(self)
+
+    def data_settr(self,other_terminal,dataValue):
+        if self.dataAnt!="None":
+            if self.dataAnt=="out":
+                other_terminal.passed = dataValue
+                return f"Data sent from {self.label} to {other_terminal.label}: {dataValue}"
+            elif self.dataAnt=="in":
+                self.passed = dataValue
+                return f"Data received at {self.label} from {other_terminal.label}: {dataValue}"
+        return f"No data sent from {self.label} to {other_terminal.label}."
+
     def __str__(self):
-        return f"{self.label} ({self.type}, {self.nature})"
-# class Component:
-#     def __init__(self,)
+        connected_labels = [t.label for t in self.connected_to]
+        return f"{self.label} ({self.type}, {self.nature}) connected terminals: {connected_labels}"
+    
 class LED:
     def __init__(self, name, pos_terminal, neg_terminal):
         self.name = name
@@ -15,8 +34,6 @@ class LED:
             "positive": pos_terminal,
             "negative": neg_terminal
         }
-        # self.data_in=""   #these two paramenters data_in & data_out for each component
-        # self.data_out=""
     def __str__(self):
         return (f"LED created !!\n name={self.name}, "
                 f"{self.terminals['positive']}, "
@@ -25,24 +42,33 @@ ter1 = Terminal("ter1", "male", "pos")
 ter2 = Terminal("ter2", "male", "neg")
 
 bulb = LED("bulb", ter1, ter2)
-print(bulb)
+# print(bulb)
 
 class Battery:
-    def __init__(self, name, pos_terminal, neg_terminal):
+    def __init__(self, name, voltage, pos_terminal, neg_terminal):
         self.name = name
+        self.voltage = voltage
         self.terminals = {
             "positive": pos_terminal,
             "negative": neg_terminal
         }
+        pos_terminal.dataAnt="out"
+        neg_terminal.dataAnt="in"
+    def setDaata(self):
+        pos_terminal = self.terminals["positive"]
+        for connected_terminal in pos_terminal.connected_to:
+            result = pos_terminal.data_settr(connected_terminal, self.voltage)
+            print(result)
+
 
     def __str__(self):
-        return (f"Battery created !!\n name={self.name}, "
+        return (f"Battery created !!\n name={self.name},  voltage={self.voltage}V "
                 f"{self.terminals['positive']}, "
                 f"{self.terminals['negative']}")
 bat1 = Terminal("bat1", "ntr", "pos")
 bat2 = Terminal("bat2", "ntr", "neg")
 
-powerA = Battery("powerA", bat1, bat2)
+powerA = Battery("powerA",5, bat1, bat2)
 print(powerA)
 
 class Resistor:
@@ -64,12 +90,20 @@ class ConnectSingle:
         self.name = name
         self.source = source_terminal
         self.target = target_terminal
+        self._connect_terminals()  # Automatically connect on creation
+
+    def _connect_terminals(self):
+        self.source.connect(self.target)
 
     def __str__(self):
         return f"Single Connection: \n name={self.name}, {self.source} → {self.target})"
 
 con1 = ConnectSingle("con1", ter1, res1)
+con2 = ConnectSingle("con2", res2, bat1)
+con3 = ConnectSingle("con3", bat2, ter2)
 print(con1)
+print(con2)
+print(con3)
 
 class DigPhotoSensor:
     def __init__(self, name, paired_component, output_terminal):
@@ -83,7 +117,7 @@ class DigPhotoSensor:
                 f"output={self.output}")
 sensorOut = Terminal("sensorOut", "male", "out")
 bulbSensor = DigPhotoSensor("bulbSensor", "bulb", sensorOut)
-print(bulbSensor)
+# print(bulbSensor)
 
 class Printr:
     def __init__(self, name, attached_to, messages):
@@ -104,12 +138,12 @@ class Printr:
     
 print1 = Printr("print1", "sensorOut", ("LED is ON", "LED is OFF"))
 
-print(print1)
+# print(print1)
 
 # Simulate signal from sensor
-print1.evaluate(True)   # Output: LED is ON
+# print1.evaluate(True)   # Output: LED is ON
 
-print1.evaluate(False)  # Output: LED is OFF
+# print1.evaluate(False)  # Output: LED is OFF
 
 class Switch:
     def __init__(self, name, input_terminal, output_terminal, default_state="OFF"):
@@ -135,14 +169,15 @@ class Switch:
         return (f"Switch created !!\n name={self.name}, default={self.default_state}, "
                 f"current={self.current_state}, in={self.input}, out={self.output}")
 sw = Switch("sw1", "switchIn", "switchOut", "OFF")
-print(sw)
-print(sw.is_closed())  # False (starts OFF)
+# print(sw)
+# print(sw.is_closed())  # False (starts OFF)
 
-sw.toggle()
-print(sw.is_closed())  # True (now ON)
+# sw.toggle()
+# print(sw.is_closed())  # True (now ON)
 
-sw.toggle()
-print(sw.is_closed())  # False (back to OFF)
+# sw.toggle()
+# print(sw.is_closed())  # False (back to OFF)
 
-sw.reset()
-print(sw.is_closed())  # False (restored to default OFF)
+# sw.reset()
+# print(sw.is_closed())  # False (restored to default OFF)
+powerA.setDaata()
