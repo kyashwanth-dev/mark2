@@ -1,0 +1,6 @@
+basic syntax rules-1%
+class definitions-2%
+voltage data model(VDM) redefining components-3%
+#
+should change the internal logic of LED,resistor,battery 
+#
