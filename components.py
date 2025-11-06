@@ -50,6 +50,7 @@ class LED:
             return f"{self.color} LED '{self.name}' is ON.\n" #+ "\n".join(results)
         else:
             self.state = "OFF"
+            self.terminals["negative"].data_settr(self.terminals["negative"].connected_to[0], "None")
             return f"{self.color} LED '{self.name}' is OFF. Insufficient voltage."
 
     def __str__(self):
@@ -117,10 +118,12 @@ class Resistor:
                         #"\n".join(results))
             else:
                 self.state = "BLOCKED"
+                self.terminals[1].data_settr(self.terminals[1].connected_to[0], "None")
                 return (f"Resistor '{self.name}' BLOCKED. Input voltage too low "
                         f"for drop of {voltage_drop:.2f}V at {self.current_mA}mA.")
         else:
             self.state = "IDLE"
+            self.terminals[1].data_settr(self.terminals[1].connected_to[0], "None")
             return f"Resistor '{self.name}' is IDLE. No input voltage."
     def __str__(self):
         t1, t2 = self.terminals
@@ -174,7 +177,7 @@ class Printr:
         """Read signal from attached terminal and print message."""
         signal = self.attached_to.passed
         # Optional debug output
-        print(f"[{self.name}] Signal received at {self.attached_to.label}: {signal}")
+        #print(f"[{self.name}] Signal received at {self.attached_to.label}: {signal}")
         if signal is True:
             print(self.messages[0])
         elif signal is False:
@@ -215,6 +218,7 @@ class Switch:
                 results.append(result)
             return f"Switch '{self.name}' is ON. Voltage passed: {input_voltage}V\n" #+ "\n".join(results)
         else:
+            self.output.data_settr(self.output.connected_to[0], "None")
             return f"Switch '{self.name}' is OFF. No voltage passed."
     def __str__(self):
         return (f"Switch created !!\n name={self.name}, default={self.default_state}, "

@@ -29,10 +29,10 @@ ConnectSingle("con4", sensorOut, printerIn)  # Sensor → Printer
 
 # === First Run: Switch is OFF ===
 print("\n--- First Run: Switch OFF ---")
-print(sw.evaluate())
-print(r.evaluate())
-print(bulb.evaluate())
-print(bulbSensor.evaluate())
+sw.evaluate()
+r.evaluate()
+bulb.evaluate()
+bulbSensor.evaluate()
 print1.evaluate()
 powerA.setDaata()
 
@@ -41,9 +41,56 @@ sw.toggle()
 
 # === Second Run: Switch is ON ===
 print("\n--- Second Run: Switch ON ---")
-print(sw.evaluate())
-print(r.evaluate())
-print(bulb.evaluate())
-print(bulbSensor.evaluate())
+sw.evaluate()
+r.evaluate()
+bulb.evaluate()
+bulbSensor.evaluate()
+print1.evaluate()
+powerA.setDaata()
+
+
+
+# === Toggle Switch OFF Again ===
+sw.toggle() 
+# === Third Run: Switch OFF Again ===
+print("\n--- Third Run: Switch OFF Again ---")  
+sw.evaluate()
+r.evaluate()
+bulb.evaluate()
+bulbSensor.evaluate()
+print1.evaluate()
+powerA.setDaata()
+
+
+# === Toggle Switch ON Again ===
+# === Fourth Run: Switch ON Again ===
+print("\n--- Fourth Run: Switch ON Again ---")
+sw.toggle()
+sw.evaluate()
+r.evaluate()
+bulb.evaluate()
+bulbSensor.evaluate()
+print1.evaluate()
+powerA.setDaata()
+
+# === Toggle Switch OFF Again ===
+sw.toggle()
+# === Fifth Run: Switch OFF Again ===
+print("\n--- Fifth Run: Switch OFF Again ---")
+sw.evaluate()
+r.evaluate()
+bulb.evaluate() 
+bulbSensor.evaluate()
+print1.evaluate()
+powerA.setDaata()
+
+# === Toggle Switch OFF Again ===
+sw.toggle()
+# === Sixth Run: Switch OFF Again ===
+print("\n--- Sixth Run: Switch OFF Again ---")
+sw.evaluate()
+r.evaluate()
+bulb.evaluate() 
+bulbSensor.evaluate()
 print1.evaluate()
 powerA.setDaata()
