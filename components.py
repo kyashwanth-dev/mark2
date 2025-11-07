@@ -223,4 +223,37 @@ class Switch:
     def __str__(self):
         return (f"Switch created !!\n name={self.name}, default={self.default_state}, "
                 f"current={self.current_state}, in={self.input}, out={self.output}")
-    
+
+
+class Diode:
+    def __init__(self, name, anode_terminal, cathode_terminal, forward_voltage=0.7):
+        self.name = name
+        self.terminals = {
+            "anode": anode_terminal,
+            "cathode": cathode_terminal
+        }
+        self.forward_voltage = forward_voltage
+        self.state = "OFF"
+        # Assign terminal roles: anode receives, cathode transmits
+        anode_terminal.dataAnt = "in"
+        cathode_terminal.dataAnt = "out"
+
+    def evaluate(self):
+        """Allow conduction only if anode voltage ≥ forward_voltage (simple model)."""
+        input_voltage = self.terminals["anode"].passed
+        if isinstance(input_voltage, (int, float)) and input_voltage >= self.forward_voltage:
+            self.state = "ON"
+            output_voltage = input_voltage - self.forward_voltage
+            for connected_terminal in self.terminals["cathode"].connected_to:
+                self.terminals["cathode"].data_settr(connected_terminal, output_voltage)
+            return f"Diode '{self.name}' is ON. Forward drop: {self.forward_voltage}V"
+        else:
+            self.state = "OFF"
+            # If no conduction, ensure downstream sees "None" if possible
+            if self.terminals["cathode"].connected_to:
+                self.terminals["cathode"].data_settr(self.terminals["cathode"].connected_to[0], "None")
+            return f"Diode '{self.name}' is OFF. Blocked or insufficient forward voltage."
+
+    def __str__(self):
+        return (f"Diode created !!\n name={self.name}, forward_voltage={self.forward_voltage}V, "
+                f"anode={self.terminals['anode']}, cathode={self.terminals['cathode']}")

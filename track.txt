@@ -3,5 +3,7 @@ class definitions-2%
 voltage data model(VDM) redefining components-3%
 #
 should change the internal logic of LED,resistor,battery(done)
-but new issue is atleast once the power has to load before toggling switch for first time(11/06/2025)
+but new issue is atleast once the power has to load before toggling switch for first time&& only it works for single end connections(11/06/2025)
 #
+New components(Diode,Transistor,Ammeter Voltmeter,)-
+Make visual components and connect them with the classes-
