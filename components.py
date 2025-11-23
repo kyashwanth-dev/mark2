@@ -25,7 +25,7 @@ class Terminal:
         return f"{self.label} ({self.type}, {self.nature}) connected terminals: {connected_labels}"
     
 class LED:
-    def __init__(self, name, pos_terminal, neg_terminal, color, voltage_drop=2):
+    def __init__(self, name, pos_terminal, neg_terminal, color, voltage_drop=1):
         self.name = name
         self.terminals = {
             "positive": pos_terminal,
@@ -211,7 +211,7 @@ class Switch:
         self.current_state = self.default_state
     def evaluate(self):
         input_voltage = self.input.passed
-        if self.is_closed() and isinstance(input_voltage, (int, float)):
+        if self.is_closed():
             results = []
             for connected_terminal in self.output.connected_to:
                 result = self.output.data_settr(connected_terminal, input_voltage)
@@ -226,7 +226,7 @@ class Switch:
 
 
 class Diode:
-    def __init__(self, name, anode_terminal, cathode_terminal, forward_voltage=0.7):
+    def __init__(self, name, anode_terminal, cathode_terminal, forward_voltage=0.3):
         self.name = name
         self.terminals = {
             "anode": anode_terminal,
@@ -241,9 +241,15 @@ class Diode:
     def evaluate(self):
         """Allow conduction only if anode voltage ≥ forward_voltage (simple model)."""
         input_voltage = self.terminals["anode"].passed
-        if isinstance(input_voltage, (int, float)) and input_voltage >= self.forward_voltage:
+        # Try to coerce the passed value to a numeric voltage. Treat non-numeric values as no voltage.
+        try:
+            numeric_voltage = float(input_voltage)
+        except (TypeError, ValueError):
+            numeric_voltage = None
+
+        if numeric_voltage is not None and numeric_voltage >= self.forward_voltage:
             self.state = "ON"
-            output_voltage = input_voltage - self.forward_voltage
+            output_voltage = numeric_voltage - self.forward_voltage
             for connected_terminal in self.terminals["cathode"].connected_to:
                 self.terminals["cathode"].data_settr(connected_terminal, output_voltage)
             return f"Diode '{self.name}' is ON. Forward drop: {self.forward_voltage}V"

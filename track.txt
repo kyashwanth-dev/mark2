@@ -2,8 +2,11 @@ basic syntax rules-1%
 class definitions-2%
 voltage data model(VDM) redefining components-3%
 #
-should change the internal logic of LED,resistor,battery(done)
-but new issue is atleast once the power has to load before toggling switch for first time&& only it works for single end connections(11/06/2025)
+
 #
 New components(Diode,Transistor,Ammeter Voltmeter,)-
+#
+diode done ✅-4%
+But should redefine resistor logic to handle voltage drop and current in circuit
+#
 Make visual components and connect them with the classes-

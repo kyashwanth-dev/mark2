@@ -1,4 +1,4 @@
-from components import Terminal, Battery, Resistor, LED, DigPhotoSensor, Printr, Switch, ConnectSingle
+from components import Terminal, Battery, Resistor, LED, DigPhotoSensor, Printr, Switch, ConnectSingle,Diode
 
 # Create terminals
 bat1 = Terminal("bat1", "ntr", "pos")
@@ -11,37 +11,40 @@ ter1 = Terminal("ter1", "male", "pos")
 ter2 = Terminal("ter2", "male", "neg")
 sensorOut = Terminal("sensorOut", "male", "out")
 printerIn = Terminal("printerIn", "female", "zero")
+d1=Terminal("d1", "ntr", "zero")
+d2=Terminal("d2", "ntr", "zero")
 
 # Create components
-powerA = Battery("powerA", 3, bat1, bat2)
-sw = Switch("sw1", switchIn, switchOut, default_state="OFF")
+powerA = Battery("powerA", 4, bat1, bat2)
+sw = Switch("sw1", switchIn, switchOut,default_state="ON")
 r = Resistor("R1", res1, res2, base_resistance=100, multiplier=0, current_mA=10)
 bulb = LED("bulb", ter1, ter2, "red", voltage_drop=2)
 bulbSensor = DigPhotoSensor("bulbSensor", bulb, sensorOut)
 print1 = Printr("print1", printerIn, ("LED is ON", "LED is OFF"))
+diode1 = Diode("diode1", d1, d2)
 
 # Connect terminals
-ConnectSingle("con1a", bat1, switchIn)       # Battery → Switch
-ConnectSingle("con1b", switchOut, res1)      # Switch → Resistor
+ConnectSingle("con1a", bat1, d1)       # Battery → Diode
+ConnectSingle("con1b", d2, res1)      # Diode → Resistor
 ConnectSingle("con2", res2, ter1)            # Resistor → LED
 ConnectSingle("con5", ter2, bat2)            # LED → Battery negative terminal
 ConnectSingle("con4", sensorOut, printerIn)  # Sensor → Printer
 
-# === First Run: Switch is OFF ===
-print("\n--- First Run: Switch OFF ---")
-sw.evaluate()
+# sw.toggle()  # Ensure switch starts OFF
+
+print("\n--- First Run:  OFF ---")
+print(diode1.evaluate())
 r.evaluate()
 bulb.evaluate()
 bulbSensor.evaluate()
 print1.evaluate()
 powerA.setDaata()
 
-# === Toggle Switch ON ===
-sw.toggle()
 
-# === Second Run: Switch is ON ===
 print("\n--- Second Run: Switch ON ---")
-sw.evaluate()
+
+
+print(diode1.evaluate())
 r.evaluate()
 bulb.evaluate()
 bulbSensor.evaluate()
@@ -50,47 +53,11 @@ powerA.setDaata()
 
 
 
-# === Toggle Switch OFF Again ===
-sw.toggle() 
-# === Third Run: Switch OFF Again ===
 print("\n--- Third Run: Switch OFF Again ---")  
-sw.evaluate()
+
+print(diode1.evaluate())
 r.evaluate()
 bulb.evaluate()
-bulbSensor.evaluate()
-print1.evaluate()
-powerA.setDaata()
-
-
-# === Toggle Switch ON Again ===
-# === Fourth Run: Switch ON Again ===
-print("\n--- Fourth Run: Switch ON Again ---")
-sw.toggle()
-sw.evaluate()
-r.evaluate()
-bulb.evaluate()
-bulbSensor.evaluate()
-print1.evaluate()
-powerA.setDaata()
-
-# === Toggle Switch OFF Again ===
-sw.toggle()
-# === Fifth Run: Switch OFF Again ===
-print("\n--- Fifth Run: Switch OFF Again ---")
-sw.evaluate()
-r.evaluate()
-bulb.evaluate() 
-bulbSensor.evaluate()
-print1.evaluate()
-powerA.setDaata()
-
-# === Toggle Switch OFF Again ===
-sw.toggle()
-# === Sixth Run: Switch OFF Again ===
-print("\n--- Sixth Run: Switch OFF Again ---")
-sw.evaluate()
-r.evaluate()
-bulb.evaluate() 
 bulbSensor.evaluate()
 print1.evaluate()
 powerA.setDaata()
