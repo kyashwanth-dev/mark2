@@ -7,6 +7,7 @@ voltage data model(VDM) redefining components-3%
 New components(Diode,Transistor,Ammeter Voltmeter,)-
 #
 diode done ✅-4%
+logic gates(OR,AND,XOR,NOT) along with digital power done ✅-5%
 But should redefine resistor logic to handle voltage drop and current in circuit
 #
 Make visual components and connect them with the classes-

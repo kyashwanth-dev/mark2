@@ -68,16 +68,28 @@ class Battery:
         }
         pos_terminal.dataAnt="out"
         neg_terminal.dataAnt="in"
+        # keep direct references for convenience
+        self.pos_terminal = pos_terminal
+        self.neg_terminal = neg_terminal
+
     def setDaata(self):
-        pos_terminal = self.terminals["positive"]
-        neg_terminal = self.terminals["negative"]
-       # Only suppress warning if return signal is exactly 0.0
+        # update stored references from terminals dict if needed
+        self.pos_terminal = self.terminals["positive"]
+        self.neg_terminal = self.terminals["negative"]
+
+        for connected_terminal in self.pos_terminal.connected_to:
+            self.pos_terminal.data_settr(connected_terminal, self.voltage)
+    def checkClose(self):
+        # Only suppress warning if return signal is exactly 0.0
+        pos_terminal = self.pos_terminal
+        neg_terminal = self.neg_terminal
+
         if not neg_terminal.connected_to or neg_terminal.passed != 0.0:
             print(f"⚠️ Circuit may be open or miswired. Battery negative terminal '{neg_terminal.label}' received: {neg_terminal.passed}")
         else:
             print(f"✅ Circuit properly closed. Return signal at '{neg_terminal.label}' is {neg_terminal.passed}V")
-        for connected_terminal in pos_terminal.connected_to:
-            pos_terminal.data_settr(connected_terminal, self.voltage)
+
+
     def __str__(self):
         return (f"Battery created !!\n name={self.name},  voltage={self.voltage}V "
                 f"{self.terminals['positive']}, "
@@ -263,3 +275,150 @@ class Diode:
     def __str__(self):
         return (f"Diode created !!\n name={self.name}, forward_voltage={self.forward_voltage}V, "
                 f"anode={self.terminals['anode']}, cathode={self.terminals['cathode']}")
+
+
+
+class ANDGate:
+    def __init__(self, name, input_terminals, output_terminal):
+                """
+                input_terminals: iterable of Terminal objects
+                output_terminal: Terminal object
+                """
+                self.name = name
+                # normalize inputs to a list
+                self.inputs = list(input_terminals)
+                self.output = output_terminal
+                self.state = "OFF"
+                # assign terminal roles
+                for t in self.inputs:
+                    t.dataAnt = "in"
+                self.output.dataAnt = "out"
+
+    def _to_bool(self, v):
+                """Coerce various passed values into a boolean signal."""
+                if isinstance(v, bool):
+                    return v
+                if isinstance(v, (int, float)):
+                    return v != 0
+                if isinstance(v, str):
+                    s = v.strip().lower()
+                    if s in ("true", "1", "on"):
+                        return True
+                    return False
+                return False
+
+    def evaluate(self):
+                """Evaluate digital AND: output True only if all inputs are True."""
+                # Gather input signals
+                input_values = [t.passed for t in self.inputs]
+                bools = [self._to_bool(val) for val in input_values]
+
+                # Determine gate output
+                output_signal = all(bools)
+                self.state = "ON" if output_signal else "OFF"
+
+                # Propagate to connected terminals (if any)
+                for connected_terminal in self.output.connected_to:
+                    self.output.data_settr(connected_terminal, output_signal)
+
+                return f"ANDGate '{self.name}' evaluated: {self.state}."
+        
+    def __str__(self):
+                input_labels = [t.label for t in self.inputs]
+                return (f"ANDGate created !!\n name={self.name}, inputs={input_labels}, "
+                        f"output={self.output.label}, current_state={self.state}")
+
+
+class ORGate:
+    def __init__(self, name, input_terminals, output_terminal):
+        self.name = name
+        self.inputs = list(input_terminals)
+        self.output = output_terminal
+        self.state = "OFF"
+        for t in self.inputs:
+            t.dataAnt = "in"
+        self.output.dataAnt = "out"
+
+    def _to_bool(self, v):
+        if isinstance(v, bool):
+            return v
+        if isinstance(v, (int, float)):
+            return v != 0
+        if isinstance(v, str):
+            s = v.strip().lower()
+            if s in ("true", "1", "on"):
+                return True
+            return False
+        return False
+
+    def evaluate(self):
+        input_values = [t.passed for t in self.inputs]
+        bools = [self._to_bool(val) for val in input_values]
+        output_signal = any(bools)
+        self.state = "ON" if output_signal else "OFF"
+        for connected_terminal in self.output.connected_to:
+            self.output.data_settr(connected_terminal, output_signal)
+        return f"ORGate '{self.name}' evaluated: {self.state}."
+
+
+class NOTGate:
+    def __init__(self, name, input_terminal, output_terminal):
+        self.name = name
+        self.input = input_terminal
+        self.output = output_terminal
+        self.state = "OFF"
+        self.input.dataAnt = "in"
+        self.output.dataAnt = "out"
+
+    def _to_bool(self, v):
+        if isinstance(v, bool):
+            return v
+        if isinstance(v, (int, float)):
+            return v != 0
+        if isinstance(v, str):
+            s = v.strip().lower()
+            if s in ("true", "1", "on"):
+                return True
+            return False
+        return False
+
+    def evaluate(self):
+        signal = self._to_bool(self.input.passed)
+        output_signal = not signal
+        self.state = "ON" if output_signal else "OFF"
+        for connected_terminal in self.output.connected_to:
+            self.output.data_settr(connected_terminal, output_signal)
+        return f"NOTGate '{self.name}' evaluated: {self.state}."
+
+
+class XORGate:
+    def __init__(self, name, input_terminals, output_terminal):
+        self.name = name
+        self.inputs = list(input_terminals)
+        if len(self.inputs) != 2:
+            raise ValueError("XORGate requires exactly two input terminals.")
+        self.output = output_terminal
+        self.state = "OFF"
+        for t in self.inputs:
+            t.dataAnt = "in"
+        self.output.dataAnt = "out"
+
+    def _to_bool(self, v):
+        if isinstance(v, bool):
+            return v
+        if isinstance(v, (int, float)):
+            return v != 0
+        if isinstance(v, str):
+            s = v.strip().lower()
+            if s in ("true", "1", "on"):
+                return True
+            return False
+        return False
+
+    def evaluate(self):
+        bools = [self._to_bool(t.passed) for t in self.inputs]
+        output_signal = bools[0] ^ bools[1]
+        self.state = "ON" if output_signal else "OFF"
+        for connected_terminal in self.output.connected_to:
+            self.output.data_settr(connected_terminal, output_signal)
+        return f"XORGate '{self.name}' evaluated: {self.state}."
